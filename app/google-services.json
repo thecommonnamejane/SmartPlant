@@ -82,12 +82,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:511183214063:android:ec88f1b669d84478b8d21a",
+        "mobilesdk_app_id": "1:511183214063:android:331038a9ec8caa06b8d21a",
         "android_client_info": {
           "package_name": "com.example.smartplant"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "511183214063-p70rios83clf9i91vrefb2me6uk4313a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smartplant",
+            "certificate_hash": "cfa424798c05914bede6e9a0b18b7632a9ee9688"
+          }
+        },
         {
           "client_id": "511183214063-08bo2hi0fan2u6m91d8004rasvlqoo02.apps.googleusercontent.com",
           "client_type": 3
