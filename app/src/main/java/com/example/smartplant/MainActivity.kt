@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import com.google.firebase.database.*
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
@@ -26,13 +29,23 @@ class MainActivity : AppCompatActivity() {
 
         val snooze: Button = findViewById(R.id.snooze)
         val test : TextView = findViewById(R.id.test)
-        val testbutton : Button = findViewById(R.id.testbutton)
+
+        database.child("PI_01_CONTROL").child("buzzer").addValueEventListener(object :
+            ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+            override fun onDataChange(p0: DataSnapshot) {
+                test.text = p0.getValue().toString()
+                if(test.text == "1")
+                    snooze.setVisibility(View.VISIBLE)
+                else
+                    snooze.setVisibility(View.GONE)
+            }
+        })
 
         snooze.setOnClickListener{
-            onBuzzer()
-        }
-        testbutton.setOnClickListener{
-            readBuzzer()
+            database.child("PI_01_CONTROL").child("buzzer").setValue("0")
         }
     }
 
@@ -44,24 +57,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }*/
-    fun readBuzzer(){
-        database.child("PI_01_CONTROL").child("buzzer").addValueEventListener(object :
-            ValueEventListener {
-            override fun onCancelled(p0: DatabaseError) {
 
-            }
-
-            override fun onDataChange(p0: DataSnapshot) {
-                test.text = p0.getValue().toString()
-            }
-        })
-    }
-
-    fun onBuzzer(){
-
-        
-        database.child("PI_01_CONTROL").child("buzzer").setValue("0")
-
-    }
 
 }
