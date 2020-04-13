@@ -47,6 +47,10 @@ class MainActivity : AppCompatActivity() {
             database.child("PI_01_CONTROL").child("buzzer").setValue("0")
         }
 
+        btnHumidity.setOnClickListener{
+            val intent=Intent (this,Humidity::class.java)
+            startActivity(intent)
+        }
 
         //LED part
         btnAuto.setOnClickListener {
