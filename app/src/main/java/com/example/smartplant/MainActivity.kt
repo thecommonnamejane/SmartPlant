@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                             database.child("PI_01_CONTROL").child("buzzer").setValue("1")
                         }
                     }
-                }, 1, 60000)
+                }, 1, 30000)
             }
             else{
                 timer.cancel()
