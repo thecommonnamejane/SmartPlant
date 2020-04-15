@@ -3,10 +3,8 @@ package com.example.smartplant
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
 import android.view.View
 import android.widget.Button
-import android.widget.CompoundButton
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +22,6 @@ import kotlin.concurrent.schedule
 class MainActivity : AppCompatActivity() {
 
     private lateinit var database: DatabaseReference
-    private lateinit var handler: Handler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,50 +29,77 @@ class MainActivity : AppCompatActivity() {
         database = Firebase.database.reference
 
 
-
-
-
-
         btnHumidity.setOnClickListener {
             val intent = Intent(this, Humidity::class.java)
             startActivity(intent)
         }
 
-        //LED part
-        btnAuto.setOnClickListener {
-            //check humid
-            //while loop or for loop
-            /*val newhumid = 0.0
-            val humid = 0
-
-            while (humid != newhumid) {
-                val i = 1//a(humid, newhumid)
-                if (i >= 4) {
-                    database.child("PI_01_CONTROL").child("led").setValue("1")
-                } else if (i <= 3) {
-                    database.child("PI_01_CONTROL").child("led").setValue("0")
-                }
-                i + 1
-            }*/
-            val auto: Button = findViewById(R.id.btnAuto)
-            val txtauto: TextView = findViewById(R.id.txtAuto)
-            database.child("PI_01_CONTROL").child("led").addValueEventListener(object :
-                ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {
-
-                }
-
-                override fun onDataChange(p0: DataSnapshot) {
-                    txtauto.text = p0.getValue().toString()
-                    if (txtauto.text == "1")
-                        auto.setVisibility(View.VISIBLE)
-                    else
-                        auto.setVisibility(View.GONE)
-                }
-            })
+        btntempe.setOnClickListener {
+            val intent = Intent(this, TemperatureActivity::class.java)
+            startActivity(intent)
         }
 
-        btnManual.setOnClickListener {
+        //LED part
+        fun readHum() {
+
+            val crt = LocalDateTime.now()
+            //format
+            val formatter = DateTimeFormatter.BASIC_ISO_DATE
+            val hourFormat = DateTimeFormatter.ofPattern("HH")
+            val minFormat = DateTimeFormatter.ofPattern("mm")
+            val secondFormat = DateTimeFormatter.ofPattern("ss")
+
+            val currentDate = crt.format(formatter)
+            val currentHours = crt.format(hourFormat)
+            val currentMin = crt.format(minFormat)
+            val currentSecond = crt.format(secondFormat)
+            var second = currentSecond.toInt()
+
+            if (second % 10 != 0) {
+                second -= (second % 10)
+            }
+
+            FirebaseDatabase.getInstance().reference
+                .child("PI_01_$currentDate")
+                .child("$currentHours") //hours
+                .child("$currentMin" + "$second")  //min+second
+                .child("humid")
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onCancelled(p0: DatabaseError) {
+                    }
+
+                    override fun onDataChange(p0: DataSnapshot) {
+                        txtAuto.text = p0.getValue().toString() + "%"
+                        if (txtAuto.text.toString() >= "40") {
+                            database.child("PI_01_CONTROL").child("led").setValue("0")
+                        } else {
+                            database.child("PI_01_CONTROL").child("led").setValue("1")
+                        }
+                    }
+                })
+            database.child("PI_01_CONTROL").child("led").setValue("0")
+
+        }
+        btnAuto.setOnClickListener {
+            readHum()
+        }
+        val auto: Button = findViewById(R.id.btnAuto)
+        val txtauto: TextView = findViewById(R.id.txtAuto)
+        database.child("PI_01_CONTROL").child("led").addValueEventListener(object :
+            ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                txtauto.text = p0.getValue().toString()
+                if (txtauto.text == "1")
+                    auto.setVisibility(View.VISIBLE)
+                else
+                    auto.setVisibility(View.INVISIBLE)
+            }
+        })
+        btnManual.setOnClickListener{
 
             database.child("PI_01_CONTROL").child("led").setValue("1")
 
@@ -89,17 +113,6 @@ class MainActivity : AppCompatActivity() {
             timer.start()
 
         }
-
-        /* val future = doAsync {
-            // do your background thread task
-            result = someTask()
-
-            uiThread {
-                // use result here if you want to update ui
-                updateUI(result)
-            }
-        }
-        future.cancel(true)*/
     }
 
     override fun onStart() {
@@ -120,22 +133,22 @@ class MainActivity : AppCompatActivity() {
             if (tempSwitch.isChecked) {
                 timer.schedule(object : TimerTask() {
                     override fun run() {
-                        val current = LocalDateTime.now()
+                        val now = LocalDateTime.now()
 
-                        val currentDate = current.format(formatter)
-                        val currentHours = current.format(hourFormat)
-                        val currentMin = current.format(minFormat)
-                        val currentSecond = current.format(secondFormat)
-                        var second = currentSecond.toInt()
+                        val nowDate = now.format(formatter)
+                        val nowHours = now.format(hourFormat)
+                        val nowMin = now.format(minFormat)
+                        val nowSecond = now.format(secondFormat)
+                        var second = nowSecond.toInt()
 
                         if (second % 10 != 0) {
                             second -= (second % 10)
                         }
 
                         FirebaseDatabase.getInstance().reference
-                            .child("PI_01_$currentDate")
-                            .child("$currentHours") //hours
-                            .child("$currentMin" + "$second")  //min+second
+                            .child("PI_01_$nowDate")
+                            .child("$nowHours") //hours
+                            .child("$nowMin" + "$second")  //min+second
                             .child("tempe")
                             .addValueEventListener(
                                 object : ValueEventListener {
@@ -178,24 +191,8 @@ class MainActivity : AppCompatActivity() {
                 if (test.text == "1")
                     snooze.setVisibility(View.VISIBLE)
                 else
-                    snooze.setVisibility(View.GONE)
+                    snooze.setVisibility(View.INVISIBLE)
             }
         })
     }
 }
-
-
-
-
-
-    /*override fun onStart() {
-        super.onStart()
-        val dateListener = object : ValueEventListener{
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val buzzer = dataSnapshot.getValue()
-            }
-        }
-    }*/
-
-
-
