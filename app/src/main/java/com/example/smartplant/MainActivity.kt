@@ -157,15 +157,13 @@ class MainActivity : AppCompatActivity() {
 
                                     override fun onDataChange(p0: DataSnapshot) {
                                         hiddenTemp.text = p0.getValue().toString() + "%"
+                                        if (p0.getValue()==null)
+                                            database.child("PI_01_CONTROL").child("buzzer").setValue("0")
+                                        else if(p0.getValue()!=36.0)
+                                            database.child("PI_01_CONTROL").child("buzzer").setValue("1")
                                     }
                                 })
-                        if (hiddenTemp.text == "36.0%") {
-                            database.child("PI_01_CONTROL").child("buzzer").setValue("0")
-                        } else if (hiddenTemp.text == "null%")
-                            database.child("PI_01_CONTROL").child("buzzer").setValue("0")
-                        else if (hiddenTemp.text != "36.0%") {
-                            database.child("PI_01_CONTROL").child("buzzer").setValue("1")
-                        } else if (hiddenTemp.text == "1") {
+                         if (hiddenTemp.text == "1") {
                             database.child("PI_01_CONTROL").child("buzzer").setValue("1")
                         }
                     }
